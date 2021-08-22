@@ -15,3 +15,5 @@ export const server = {
     return res.json() as Promise<{ data: TData }>;
   },
 };
+
+console.log(server);

@@ -1,4 +1,3 @@
-import React from 'react';
 import { server } from '../../lib/api/server';
 import { useQuery } from '../../lib/api/useQuery';
 
@@ -6,7 +5,6 @@ import {
   ListingsData,
   DeleteListingData,
   DeleteListingVariables,
-  Listing,
 } from './types';
 const LISTINGS = `
   query Listings {
@@ -37,7 +35,7 @@ interface Props {
 }
 
 const Listings = ({ title }: Props) => {
-  const { data } = useQuery<ListingsData>(LISTINGS);
+  const { data, refetch, loading } = useQuery<ListingsData>(LISTINGS);
 
   const deleteListings = async (id: string) => {
     await server.fetch<DeleteListingData, DeleteListingVariables>({
@@ -46,6 +44,7 @@ const Listings = ({ title }: Props) => {
         id,
       },
     });
+    refetch();
   };
 
   const listings = data ? data.listings : null;
@@ -60,6 +59,10 @@ const Listings = ({ title }: Props) => {
       </li>
     );
   });
+
+  if (loading) {
+    return <h2>Loading....</h2>;
+  }
 
   return (
     <div>
