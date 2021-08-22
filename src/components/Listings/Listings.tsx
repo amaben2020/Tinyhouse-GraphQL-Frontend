@@ -1,6 +1,13 @@
 import React from 'react';
 import { server } from '../../lib/api/server';
+import { useQuery } from '../../lib/api/useQuery';
 
+import {
+  ListingsData,
+  DeleteListingData,
+  DeleteListingVariables,
+  Listing,
+} from './types';
 const LISTINGS = `
   query Listings {
     listings {
@@ -11,9 +18,18 @@ const LISTINGS = `
       price
       numOfGuests
       numOfBeds
+      numOfBaths
       rating
     }
   }
+`;
+
+const DELETE_LISTING = `
+mutation DeleteListing($id: ID!) {
+  deleteListing(id: $id ) {
+    id
+  }
+}
 `;
 
 interface Props {
@@ -21,14 +37,34 @@ interface Props {
 }
 
 const Listings = ({ title }: Props) => {
-  const fetchListings = async () => {
-    const { data } = await server.fetch({ query: LISTINGS });
-    console.log(data);
+  const { data } = useQuery<ListingsData>(LISTINGS);
+
+  const deleteListings = async (id: string) => {
+    await server.fetch<DeleteListingData, DeleteListingVariables>({
+      query: DELETE_LISTING,
+      variables: {
+        id,
+      },
+    });
   };
+
+  const listings = data ? data.listings : null;
+  const listingsList = listings?.map((listing) => {
+    return (
+      <li key={listing.id}>
+        <ul>
+          {' '}
+          {listing.title}
+          <button onClick={() => deleteListings(listing.id)}>Delete </button>
+        </ul>
+      </li>
+    );
+  });
+
   return (
     <div>
       {title}
-      <button onClick={fetchListings}>Query Listings</button>
+      {listingsList}
     </div>
   );
 };
