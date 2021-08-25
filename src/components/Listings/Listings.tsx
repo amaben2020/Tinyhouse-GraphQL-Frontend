@@ -1,5 +1,5 @@
-import { server } from '../../lib/api/server';
 import { useQuery } from '../../lib/api/useQuery';
+import { useMutation } from '../../lib/api/useMutation';
 
 import {
   ListingsData,
@@ -35,15 +35,14 @@ interface Props {
 }
 
 const Listings = ({ title }: Props) => {
-  const { data, refetch, loading } = useQuery<ListingsData>(LISTINGS);
+  const [
+    deleteListing,
+    { loading: deleteListingLoading, error: deleteListingError },
+  ] = useMutation<DeleteListingData, DeleteListingVariables>(DELETE_LISTING);
+  const { data, refetch, loading, error } = useQuery<ListingsData>(LISTINGS);
 
-  const deleteListings = async (id: string) => {
-    await server.fetch<DeleteListingData, DeleteListingVariables>({
-      query: DELETE_LISTING,
-      variables: {
-        id,
-      },
-    });
+  const handleDeleteListings = async (id: string) => {
+    await deleteListing({ id });
     refetch();
   };
 
@@ -54,20 +53,36 @@ const Listings = ({ title }: Props) => {
         <ul>
           {' '}
           {listing.title}
-          <button onClick={() => deleteListings(listing.id)}>Delete </button>
+          <button onClick={() => handleDeleteListings(listing.id)}>
+            Delete{' '}
+          </button>
         </ul>
       </li>
     );
   });
 
+  const deleteListingLoadingData = deleteListingLoading ? (
+    <h4>Deletion in progress....</h4>
+  ) : null;
+  const deleteListingErrorData = deleteListingError ? (
+    <h4>Error deleting ....</h4>
+  ) : null;
+
   if (loading) {
     return <h2>Loading....</h2>;
+  }
+
+  //This covers the full UI since it is not inside the div
+  if (error) {
+    return <h3>Uh oh There is an error fetching data</h3>;
   }
 
   return (
     <div>
       {title}
       {listingsList}
+      {deleteListingLoadingData}
+      {deleteListingErrorData}
     </div>
   );
 };
