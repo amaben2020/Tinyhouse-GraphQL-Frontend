@@ -11,6 +11,12 @@ interface QueryResult<TData> extends State<TData> {
   refetch: () => void;
 }
 
+const reducer = (state, action) => {
+  switch () {
+  
+}
+}
+
 export const useQuery = <TData = any>(query: string) => {
   const [state, setState] = useState<State<TData>>({
     data: null,

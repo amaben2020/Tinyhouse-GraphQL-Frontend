@@ -16,7 +16,7 @@ export const server = {
       },
       body: JSON.stringify(body),
     });
-
+    console.log(res);
     return res.json() as Promise<{ data: TData; errors: Error[] }>;
   },
 };

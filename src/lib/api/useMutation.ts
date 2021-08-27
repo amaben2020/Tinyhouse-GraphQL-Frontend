@@ -27,11 +27,13 @@ export const useMutation = <TData = any, TVariables = any>(
         query,
         variables,
       });
+      //setting data to null and loading initially
       setState({ data: null, loading: true, error: false });
+
       if (errors && errors.length) {
         throw new Error(errors[0].message);
       }
-
+      //updating data to the selected item and loading initially
       setState({ data, loading: false, error: false });
     } catch (error) {
       setState({ data: null, loading: false, error: true });
