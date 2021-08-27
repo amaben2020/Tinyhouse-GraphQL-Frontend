@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useReducer } from 'react';
 import { server } from './server';
 
 interface State<TData> {
@@ -11,30 +11,54 @@ interface QueryResult<TData> extends State<TData> {
   refetch: () => void;
 }
 
-const reducer = (state, action) => {
-  switch () {
-  
-}
-}
+type Action<TData> =
+  | { type: 'FETCH' }
+  | { type: 'FETCH_SUCCESS'; payload: TData }
+  | { type: 'FETCH_ERROR' };
+
+const reducer =
+  <TData>() =>
+  (state: State<TData>, action: Action<TData>): State<TData> => {
+    switch (action.type) {
+      case 'FETCH':
+        return { ...state, loading: true };
+      case 'FETCH_SUCCESS':
+        return { data: action.payload, loading: false, error: false };
+
+      case 'FETCH_ERROR':
+        return { ...state, loading: false, error: true };
+      default:
+        throw new Error();
+    }
+  };
 
 export const useQuery = <TData = any>(query: string) => {
-  const [state, setState] = useState<State<TData>>({
+  const fetchReducer = reducer<TData>();
+  const [state, dispatch] = useReducer(fetchReducer, {
     data: null,
     error: false,
     loading: false,
   });
+  // const [state, setState] = useState<State<TData>>({
+  //   data: null,
+  //   error: false,
+  //   loading: false,
+  // });
 
   const fetch = useCallback(() => {
     try {
       const fetchApi = async () => {
-        setState({ data: null, loading: true, error: false });
+        dispatch({ type: 'FETCH' });
+        // setState({ data: null, loading: true, error: false });
         const { data } = await server.fetch<TData>({ query });
 
-        setState({ data, loading: false, error: false });
+        // setState({ data, loading: false, error: false });
+        dispatch({ type: 'FETCH_SUCCESS', payload: data });
       };
       fetchApi();
     } catch (error) {
-      setState({ data: null, error: true, loading: false });
+      dispatch({ type: 'FETCH_ERROR' });
+      // setState({ data: null, error: true, loading: false });
 
       throw console.error(error);
     }
