@@ -1,19 +1,15 @@
-// import { useQuery } from '../../lib/api/useQuery';
-// import { useMutation } from '../../lib/api/useMutation';
 import { useQuery, useMutation } from '@apollo/react-hooks';
+
 import { gql } from 'graphql-tag';
-// import {
-//   ListingsData,
-//   DeleteListingData,
-//   DeleteListingVariables,
-// } from './types';
+
 import { Listings as ListingsData } from './__generated__/Listings';
 import {
   DeleteListing as DeleteListingData,
   DeleteListingVariables,
 } from './__generated__/DeleteListing';
-import { List, Avatar } from 'antd';
+import { List, Avatar, Button, Spin } from 'antd';
 import './styles/listings.css';
+import { ListingsSkeleton } from './../Listings/components/index';
 const LISTINGS = gql`
   query Listings {
     listings {
@@ -61,7 +57,16 @@ const Listings = ({ title }: Props) => {
       itemLayout="horizontal"
       dataSource={listings}
       renderItem={(listing) => (
-        <List.Item>
+        <List.Item
+          actions={[
+            <Button
+              type="primary"
+              onClick={() => handleDeleteListings(listing.id)}
+            >
+              Delete
+            </Button>,
+          ]}
+        >
           <List.Item.Meta
             avatar={<Avatar src={listing.image} shape="square" size={78} />}
             title={listing.title}
@@ -71,42 +76,32 @@ const Listings = ({ title }: Props) => {
       )}
     />
   ) : null;
-  // const listingsList = listings?.map((listing) => {
-  //   return (
-  //     <li key={listing.id}>
-  //       <ul>
-  //         {' '}
-  //         {listing.title}
-  //         <button onClick={() => handleDeleteListings(listing.id)}>
-  //           Delete{' '}
-  //         </button>
-  //       </ul>
-  //     </li>
-  //   );
-  // });
 
-  const deleteListingLoadingData = deleteListingLoading ? (
-    <h4>Deletion in progress....</h4>
-  ) : null;
   const deleteListingErrorData = deleteListingError ? (
     <h4>Error deleting ....</h4>
   ) : null;
 
   if (loading) {
-    return <h2>Loading....</h2>;
+    return <ListingsSkeleton title={title} />;
   }
 
   //This covers the full UI since it is not inside the div
   if (error) {
-    return <h3>Uh oh There is an error fetching data</h3>;
+    return (
+      <div className="listings__alert">
+        <ListingsSkeleton title={title} error />
+      </div>
+    );
   }
 
   return (
     <div className="listings">
-      {title}
-      {listingsList}
-      {deleteListingLoadingData}
-      {deleteListingErrorData}
+      <Spin spinning={deleteListingLoading}>
+        {title}
+        {listingsList}
+
+        {deleteListingErrorData}
+      </Spin>
     </div>
   );
 };
