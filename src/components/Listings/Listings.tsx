@@ -1,7 +1,5 @@
 import { useQuery, useMutation } from '@apollo/react-hooks';
-
 import { gql } from 'graphql-tag';
-
 import { Listings as ListingsData } from './__generated__/Listings';
 import {
   DeleteListing as DeleteListingData,
@@ -13,6 +11,7 @@ import {
   ListingsAlert,
   ListingsSkeleton,
 } from './../Listings/components/index';
+
 const LISTINGS = gql`
   query Listings {
     listings {

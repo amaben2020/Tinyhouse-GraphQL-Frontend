@@ -4,7 +4,7 @@ interface IProps {
   errorMessage: string;
   error?: boolean;
 }
-export const ListingsAlert = ({ errorMessage, error }: IProps) => {
+export const ListingsAlert = ({ errorMessage, error = false }: IProps) => {
   return (
     <div>
       <Alert message={errorMessage} />
