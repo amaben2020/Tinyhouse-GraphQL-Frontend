@@ -9,7 +9,10 @@ import {
 } from './__generated__/DeleteListing';
 import { List, Avatar, Button, Spin } from 'antd';
 import './styles/listings.css';
-import { ListingsSkeleton } from './../Listings/components/index';
+import {
+  ListingsAlert,
+  ListingsSkeleton,
+} from './../Listings/components/index';
 const LISTINGS = gql`
   query Listings {
     listings {
@@ -78,14 +81,13 @@ const Listings = ({ title }: Props) => {
   ) : null;
 
   const deleteListingErrorData = deleteListingError ? (
-    <h4>Error deleting ....</h4>
+    <ListingsAlert errorMessage="Cannot be deleted, try again" error />
   ) : null;
 
   if (loading) {
     return <ListingsSkeleton title={title} />;
   }
 
-  //This covers the full UI since it is not inside the div
   if (error) {
     return (
       <div className="listings__alert">
@@ -99,7 +101,6 @@ const Listings = ({ title }: Props) => {
       <Spin spinning={deleteListingLoading}>
         {title}
         {listingsList}
-
         {deleteListingErrorData}
       </Spin>
     </div>
