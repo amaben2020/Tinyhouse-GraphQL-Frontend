@@ -1,12 +1,20 @@
-import { useQuery } from '../../lib/api/useQuery';
-import { useMutation } from '../../lib/api/useMutation';
-
+// import { useQuery } from '../../lib/api/useQuery';
+// import { useMutation } from '../../lib/api/useMutation';
+import { useQuery, useMutation } from '@apollo/react-hooks';
+import { gql } from 'graphql-tag';
+// import {
+//   ListingsData,
+//   DeleteListingData,
+//   DeleteListingVariables,
+// } from './types';
+import { Listings as ListingsData } from './__generated__/Listings';
 import {
-  ListingsData,
-  DeleteListingData,
+  DeleteListing as DeleteListingData,
   DeleteListingVariables,
-} from './types';
-const LISTINGS = `
+} from './__generated__/DeleteListing';
+import { List, Avatar } from 'antd';
+import './styles/listings.css';
+const LISTINGS = gql`
   query Listings {
     listings {
       id
@@ -22,12 +30,12 @@ const LISTINGS = `
   }
 `;
 
-const DELETE_LISTING = `
-mutation DeleteListing($id: ID!) {
-  deleteListing(id: $id ) {
-    id
+const DELETE_LISTING = gql`
+  mutation DeleteListing($id: ID!) {
+    deleteListing(id: $id) {
+      id
+    }
   }
-}
 `;
 
 interface Props {
@@ -42,24 +50,40 @@ const Listings = ({ title }: Props) => {
   const { data, refetch, loading, error } = useQuery<ListingsData>(LISTINGS);
 
   const handleDeleteListings = async (id: string) => {
-    await deleteListing({ id });
+    await deleteListing({ variables: { id } });
     refetch();
   };
 
   const listings = data ? data.listings : null;
-  const listingsList = listings?.map((listing) => {
-    return (
-      <li key={listing.id}>
-        <ul>
-          {' '}
-          {listing.title}
-          <button onClick={() => handleDeleteListings(listing.id)}>
-            Delete{' '}
-          </button>
-        </ul>
-      </li>
-    );
-  });
+
+  const listingsList = listings ? (
+    <List
+      itemLayout="horizontal"
+      dataSource={listings}
+      renderItem={(listing) => (
+        <List.Item>
+          <List.Item.Meta
+            avatar={<Avatar src={listing.image} shape="square" size={78} />}
+            title={listing.title}
+            description={listing.address}
+          />
+        </List.Item>
+      )}
+    />
+  ) : null;
+  // const listingsList = listings?.map((listing) => {
+  //   return (
+  //     <li key={listing.id}>
+  //       <ul>
+  //         {' '}
+  //         {listing.title}
+  //         <button onClick={() => handleDeleteListings(listing.id)}>
+  //           Delete{' '}
+  //         </button>
+  //       </ul>
+  //     </li>
+  //   );
+  // });
 
   const deleteListingLoadingData = deleteListingLoading ? (
     <h4>Deletion in progress....</h4>
@@ -78,7 +102,7 @@ const Listings = ({ title }: Props) => {
   }
 
   return (
-    <div>
+    <div className="listings">
       {title}
       {listingsList}
       {deleteListingLoadingData}
